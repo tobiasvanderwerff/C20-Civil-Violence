@@ -2,18 +2,19 @@
 \usepackage{dmasproject}
 % if you need additional LaTeX packages, add them here
 
-\title{Your Project Title Goes Here}
+\title{Simulating the Effect of Social Media on Civil Violence}
 % sort your names alphabetically by last name
 \author{
-  First Author (s123456)
+  Rafael Tappe Maestro (s3258734)
   \\
-  Second Author (s234567)
+  Arseniy Nikonov (s2977419)
   \\
-  Third Author (s345678)
+  Panagiotis Ritas (s3152529)
   \\
-  Fourth Author (s456789)
+  Tobias van der Werff (s4314719)
 }
-\date{Alpha version, September 2020} % change this accordingly
+%\date{Alpha version, September 2020} % change this accordingly
+\date{State of the Art analysis, September 2020}
 
 \begin{document}
 
@@ -25,23 +26,20 @@ The abstract should briefly summarize your project in 150--250 words.
 
 \section{Introduction}
 
-You can also refer to more general literature here, for example~\cite{WooldridgeMAS} or~\cite{wiki:SchellingSegregation}.
-
-\subsection{Problem}
-
-Key question 1: What is the problem addressed?
+Social media adds a new dimension to the dynamics of civil protests. The Arab spring provides a clear example of protests fueled by social media: it has been argued that social media played an instrumental role in the success of the anti-government protests ~\cite{eltantawy2011arab} and that online revolutionary conversations often preceded major events on the ground ~\cite{howard2011opening}. Moreover, a 2011 survey of participants in Egypt’s  Tahrir Square protests indicates that social media use greatly increased the  odds of respondents attending protests on the first day ~\cite{tufekci2012social}.  In this paper we focus on the effect that social media has on the dynamics of civil violence when it is used to fuel both new and existing protests. 
 
 \subsection{State of the art}
 
-Key question 2: What is the state of the art concerning this problem?
-Which publications are the inspiration for your project?
-Add them to the file \texttt{references.bib} and cite them like this~\cite{dWVV2013:ToM}.
+We use Epstein’s model of civil violence ~\cite{epstein2002modeling} as a starting point for our model. Epstein’s paper provides an agent based simulation of civil violence. In this simulation, protesters rebel against authority (cops) in an environment resembling a riot. We will be focusing on one out of two models presented in Epstein’s paper, in which agents in authority aim to suppress and imprison the group of protesters, who are actively rebelling.
+    
+Protesters can either be passive or be actively rebellious. Each protester's grievance level is influenced by two components: illegitimacy, which is the perceived illegitimacy of the government, as well as hardship, which measures each individual agent's economic privation.  Each agent also has a calculated probability of being arrested. This probability depends on the amount of cops and the amount of already active rebellious protesters in his vision. Hence, more cops in his surroundings means a higher arrest probability, and more active protesters in his surroundings means a lower probability of being arrested. Protesters become active depending on how averse they are on taking risks, on their estimated probability of being arrested, and their given grievance levels. Cops will in general arrest and send to jail protesters that are active within their vision. After a randomly given jail time, protesters return back to the simulation.
 
-Note that the \verb|\cite| command can take multiple references~\cite{vDGKK2019:ReachGossip,vdBerg2019:UnreliableGossip,HvKLL2019:SupermarketQ}.
+These simple rules and components of the simulation provide some interesting findings. Specifically, it was observed that protesters become passive when cops are near, but become rebellious again when cops left their vision. Another observation is that in areas where a lot of rebellious protesters, and at the same time a small number of cops are gathered, there occurs an “uprising", in which most protesters become active and rebel. In general, the simple rules in the model produced some complex and emerging behaviors which represent real life’s political upheavals and protests against authority.
+
 
 \subsection{New idea}
 
-Key question 3: What is the new idea for addressing the problem?
+In this research, we aim to extend Epstein's model of civil violence to include the effects of social media. Epstein's model was published in 2002 and did not include a notion of social media or online discourse in general. However, it seems reasonable to assume that a more modern version of Epstein's model would include the effects of online discourse, since the effects of social media on civil violence can be grave. Contrary to Epstein's model where vision is local and information is limited, the ubiquitousness of social media creates new dynamics where information is abundant and vision is expanded. We will investigate the effect that these changes have on Epstein's model. 
 
 \section{Method}
 
