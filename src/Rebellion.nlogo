@@ -103,7 +103,11 @@ to move ; turtle procedure
     if breed = cops [
       if cop-move = "rand" [ move-to one-of targets ] ; cops move randomly
       if cop-move = "sm-protest" [
-
+        let centro one-of centroids
+        if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
+          set heading towards one-of centroids
+          if not any? turtles-on patch-ahead 1 [ fd 1 ]
+        ]
       ]
     ]
 
@@ -111,7 +115,13 @@ to move ; turtle procedure
     if breed = agents [
       if agent-move = "none" [] ; agents don't move
       if agent-move = "rand" [ move-to one-of targets ] ; agents move randomly
-      if agent-move = "sm-protest" []
+      if agent-move = "sm-protest" [
+        let centro one-of centroids
+        if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
+          set heading towards one-of centroids
+          if not any? turtles-on patch-ahead 1 [ fd 1 ]
+        ]
+      ]
     ]
   ]
 end
@@ -465,7 +475,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-0
+1
 
 CHOOSER
 390

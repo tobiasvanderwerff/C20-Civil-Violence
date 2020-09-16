@@ -111,7 +111,13 @@ to move ; turtle procedure
     if breed = agents [
       if agent-move = "none" [] ; agents don't move
       if agent-move = "rand" [ move-to one-of targets ] ; agents move randomly
-      if agent-move = "sm-protest" []
+      if agent-move = "sm-protest" [
+        let centro one-of centroids
+        if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
+          set heading towards one-of centroids
+          if not any? turtles-on patch-ahead 1 [ fd 1 ]
+        ]
+      ]
     ]
   ]
 end
@@ -184,7 +190,7 @@ end
 to reset-centroids
   let colors base-colors
   ask centroids [die]
-  create-centroids num-centroids [
+  create-centroids 1 [
     move-to one-of agents
     set size 5
     set color last colors + 1
@@ -465,7 +471,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-0
+1
 
 CHOOSER
 390
@@ -475,22 +481,7 @@ CHOOSER
 agent-move
 agent-move
 "none" "rand" "sm-protest"
-1
-
-SLIDER
-554
-462
-726
-495
-num-centroids
-num-centroids
-1
-5
-1.0
-1
-1
-NIL
-HORIZONTAL
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
