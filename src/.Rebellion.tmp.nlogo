@@ -184,7 +184,7 @@ end
 to reset-centroids
   let colors base-colors
   ask centroids [die]
-  create-centroids 1 [
+  create-centroids num-centroids [
     move-to one-of agents
     set size 5
     set color last colors + 1
@@ -476,6 +476,21 @@ agent-move
 agent-move
 "none" "rand" "sm-protest"
 1
+
+SLIDER
+554
+462
+726
+495
+num-centroids
+num-centroids
+1
+5
+1.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
