@@ -97,30 +97,37 @@ to move ; turtle procedure
     not any? cops-here and all? agents-here [ jail-term > 0 ]
   ]
 
-  ; move if eligible eligible patches have been found
-  if any? targets [
-    ; movement behavior of cops
-    if breed = cops [
-      if cop-move = "rand" [ move-to one-of targets ] ; cops move randomly
-      if cop-move = "sm-protest" [
+  ; movement behavior of cops
+  if breed = cops [
+    if cop-move = "rand" [ if any? targets [ move-to one-of targets ]]
+    if cop-move = "sm-protest" [
+      ifelse any? centroids [ ; if possible move towards the centroid
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
           if not any? turtles-on patch-ahead 1 [ fd 1 ]
         ]
       ]
+      [
+        if any? targets [ move-to one-of targets ] ; else move randomly
+      ]
     ]
+  ]
 
-    ; movement behavior of agents
-    if breed = agents [
-      if agent-move = "none" [] ; agents don't move
-      if agent-move = "rand" [ move-to one-of targets ] ; agents move randomly
-      if agent-move = "sm-protest" [
+  ; movement behavior of cops
+  if breed = agents [
+    if agent-move = "none" [] ; agents don't move
+    if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
+    if agent-move = "sm-protest" [
+      ifelse any? centroids [ ; if possible move towards the centroid
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
           if not any? turtles-on patch-ahead 1 [ fd 1 ]
         ]
+      ]
+      [
+        if any? targets [ move-to one-of targets ] ; else move randomly
       ]
     ]
   ]
@@ -204,13 +211,23 @@ end
 
 to update-clusters
   let movement-threshold 0.1
+
+  if any? agents with [ active? ] [ ; create new centroid
+    create-centroids 1 [
+    move-to one-of agents with [active?]
+    set size 5
+    set color red - 1
+    ]
+  ]
+
   ask centroids [
     let my-points agents with [ active? ]
-    if any? my-points [
+    ifelse any? my-points [
       let new-xcor mean [ xcor ] of my-points
       let new-ycor mean [ ycor ] of my-points
       setxy new-xcor new-ycor
     ]
+    [ die ] ; kill centroid
   ]
   update-plots
 end
@@ -393,7 +410,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-70.0
+53.0
 1.0
 1
 %
@@ -475,7 +492,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-1
+0
 
 CHOOSER
 390
@@ -485,7 +502,7 @@ CHOOSER
 agent-move
 agent-move
 "none" "rand" "sm-protest"
-1
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
