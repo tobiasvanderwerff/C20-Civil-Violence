@@ -81,13 +81,26 @@ end
 
 ; move to an empty patch
 to move ; turtle procedure
-  if movement? or breed = cops [
+  let targets neighborhood with [
     ; move to a patch in vision; candidate patches are
     ; empty or contain only jailed agents
-    let targets neighborhood with [
-      not any? cops-here and all? agents-here [ jail-term > 0 ]
+    not any? cops-here and all? agents-here [ jail-term > 0 ]
+  ]
+
+  ; move if eligible eligible patches have been found
+  if any? targets [
+    ; movement behavior of cops
+    if breed = cops [
+      if cop-move = "rand" [ move-to one-of targets ] ; cops move randomly
+      ; if cop-move = "sm-protest" []
     ]
-    if any? targets [ move-to one-of targets ]
+
+    ; movement behavior of agents
+    if breed = agents [
+      if agent-move = "none" [] ; agents don't move
+      if agent-move = "rand" [ move-to one-of targets ] ; agents move randomly
+      ; if agent-move = "sm-protest" []
+    ]
   ]
 end
 
@@ -313,17 +326,6 @@ count agents with [not active? and jail-term = 0]
 1
 11
 
-SWITCH
-10
-370
-149
-403
-movement?
-movement?
-0
-1
--1000
-
 MONITOR
 180
 200
@@ -416,6 +418,26 @@ CHOOSER
 visualization
 visualization
 "2D" "3D"
+0
+
+CHOOSER
+390
+457
+528
+502
+cop-move
+cop-move
+"rand" "sm-protest"
+0
+
+CHOOSER
+390
+517
+528
+562
+agent-move
+agent-move
+"none" "rand" "sm-protest"
 0
 
 @#$#@#$#@
