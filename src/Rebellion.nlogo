@@ -105,7 +105,10 @@ to move ; turtle procedure
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
-          if not any? turtles-on patch-ahead 1 [ fd 1 ]
+          ifelse not any? turtles-on patch-ahead 1 [fd 1 ]
+          [
+            if not any? turtles-on patch-ahead 2 [ fd 2 ]
+          ]
         ]
       ]
       [
@@ -373,7 +376,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-4.0
+4.2
 0.1
 1
 %
@@ -482,7 +485,7 @@ CHOOSER
 visualization
 visualization
 "2D" "3D"
-0
+1
 
 CHOOSER
 390
@@ -492,7 +495,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-0
+1
 
 CHOOSER
 390
@@ -502,7 +505,7 @@ CHOOSER
 agent-move
 agent-move
 "none" "rand" "sm-protest"
-2
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
