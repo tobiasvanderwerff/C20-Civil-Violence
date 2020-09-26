@@ -351,7 +351,7 @@ vision
 vision
 0.0
 10.0
-6.9
+7.0
 .1
 1
 patches
@@ -377,7 +377,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-4.0
+2.6
 0.1
 1
 %
@@ -532,7 +532,7 @@ sm-response-rate
 sm-response-rate
 0
 100
-100.0
+22.0
 1
 1
 NIL
