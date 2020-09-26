@@ -158,7 +158,10 @@ to-report grievance
 end
 
 to-report sm-grievance
-  report mean [grievance] of agents with [sm-user = true and jail-term > 0]
+  let sm-grievances [grievance] of agents with [sm-user = true and jail-term > 0]
+  ifelse empty? sm-grievances
+    [ report 0.5 ]
+    [ report mean sm-grievances]
 end
 
 to-report estimated-arrest-probability
@@ -324,7 +327,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.81
+0.3
 0.01
 1
 NIL
