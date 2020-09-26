@@ -12,6 +12,7 @@ agents-own [
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
   active?             ; if true, then the agent is actively rebelling
   jail-term           ; how many turns in jail remain? (if 0, the agent is not in jail)
+  sm-use?             ; set from beginning: if social media use is true,
 ]
 
 patches-own [
@@ -54,6 +55,7 @@ to setup
     set perceived-hardship random-float 1.0
     set active? false
     set jail-term 0
+    set sm-use ifelse-value (random 100 <= agents-using-sm) [true] [false]
     display-agent
   ]
 
@@ -117,7 +119,7 @@ to move ; turtle procedure
     ]
   ]
 
-  ; movement behavior of cops
+  ; movement behavior of agents
   if breed = agents [
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
@@ -144,7 +146,10 @@ to determine-behavior
 end
 
 to-report grievance
+  if sm-use = false [
   report perceived-hardship * (1 - government-legitimacy)
+    else
+    report perceived-hardship *(1 - government-legitimacy) + 0.1 * mean(grievance)
 end
 
 to-report estimated-arrest-probability
@@ -351,7 +356,7 @@ vision
 vision
 0.0
 10.0
-7.0
+9.3
 .1
 1
 patches
@@ -517,7 +522,7 @@ agents-using-sm
 agents-using-sm
 0
 100
-100.0
+94.0
 1
 1
 NIL

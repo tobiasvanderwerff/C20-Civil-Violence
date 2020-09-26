@@ -12,6 +12,7 @@ agents-own [
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
   active?             ; if true, then the agent is actively rebelling
   jail-term           ; how many turns in jail remain? (if 0, the agent is not in jail)
+  sm-use?             ; set from beginning: if social media use is true,
 ]
 
 patches-own [
@@ -54,6 +55,7 @@ to setup
     set perceived-hardship random-float 1.0
     set active? false
     set jail-term 0
+    set sm-use ifelse-value (random 100 <= sm-us) [true] [false]
     display-agent
   ]
 
@@ -117,12 +119,13 @@ to move ; turtle procedure
     ]
   ]
 
-  ; movement behavior of cops
+  ; movement behavior of agents
   if breed = agents [
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
     if agent-move = "sm-protest" [
       ifelse any? centroids and (random 100 <= agents-using-sm) [ ; if possible move towards the centroid
+        ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
@@ -143,7 +146,10 @@ to determine-behavior
 end
 
 to-report grievance
+  if sm-use = false [
   report perceived-hardship * (1 - government-legitimacy)
+    else
+    report perceived-hardship *(1 - government-legitimacy) + 0.1 * mean(grievance)
 end
 
 to-report estimated-arrest-probability
@@ -309,7 +315,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.82
+0.21
 0.01
 1
 NIL
@@ -324,7 +330,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-30.0
+12.0
 1.0
 1
 turns
@@ -350,7 +356,7 @@ vision
 vision
 0.0
 10.0
-7.0
+9.3
 .1
 1
 patches
@@ -376,7 +382,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-4.2
+2.6
 0.1
 1
 %
@@ -413,7 +419,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-53.0
+24.0
 1.0
 1
 %
@@ -485,7 +491,7 @@ CHOOSER
 visualization
 visualization
 "2D" "3D"
-1
+0
 
 CHOOSER
 390
@@ -516,7 +522,7 @@ agents-using-sm
 agents-using-sm
 0
 100
-50.0
+100.0
 1
 1
 NIL
