@@ -12,6 +12,7 @@ agents-own [
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
   active?             ; if true, then the agent is actively rebelling
   jail-term           ; how many turns in jail remain? (if 0, the agent is not in jail)
+  sm-user             ; is the agent a social media user?
 ]
 
 patches-own [
@@ -25,6 +26,9 @@ to setup
   ; set globals
   set k 2.3
   set threshold 0.1
+
+  ;let all-agents turtles with [breed = agents]
+  ;set sm-agents (n-of ((agents-using-sm / 100) * count all-agents) all-agents)
 
   ask patches [
     ; make background a slightly dark gray
@@ -54,6 +58,7 @@ to setup
     set perceived-hardship random-float 1.0
     set active? false
     set jail-term 0
+    set sm-user ifelse-value (breed = agents and (random 100 <= agents-using-sm)) [true] [false]
     display-agent
   ]
 
@@ -79,6 +84,14 @@ to go
   ; update agent display
   ask agents [ display-agent ]
   ask cops [ display-cop ]
+
+  ask agents [
+    ; social media dependent grievance: change grievance based on the mean grievance on social media
+    if (grievance < mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+      [ set perceived-hardship 1.05 * perceived-hardship ]
+    if (grievance > mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+      [ set perceived-hardship 0.955 * perceived-hardship ]
+  ]
 
   ; calculate rebellion cluster centroids
   update-clusters
@@ -145,6 +158,10 @@ end
 
 to-report grievance
   report perceived-hardship * (1 - government-legitimacy)
+end
+
+to-report sm-grievance
+  report grievance
 end
 
 to-report estimated-arrest-probability
@@ -532,11 +549,22 @@ sm-response-rate
 sm-response-rate
 0
 100
-22.0
+50.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+218
+319
+320
+364
+sm-grievance
+[grievance] of agents with [sm-user = true and jail-term > 0]
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?

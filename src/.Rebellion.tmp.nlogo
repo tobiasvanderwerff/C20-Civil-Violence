@@ -12,6 +12,7 @@ agents-own [
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
   active?             ; if true, then the agent is actively rebelling
   jail-term           ; how many turns in jail remain? (if 0, the agent is not in jail)
+  sm-user             ; is the agent a social media user?
 ]
 
 patches-own [
@@ -25,6 +26,9 @@ to setup
   ; set globals
   set k 2.3
   set threshold 0.1
+
+  ;let all-agents turtles with [breed = agents]
+  ;set sm-agents (n-of ((agents-using-sm / 100) * count all-agents) all-agents)
 
   ask patches [
     ; make background a slightly dark gray
@@ -54,6 +58,7 @@ to setup
     set perceived-hardship random-float 1.0
     set active? false
     set jail-term 0
+    set sm-user ifelse-value (breed = agents and (random 100 <= agents-using-sm)) [true] [false]
     display-agent
   ]
 
@@ -79,6 +84,14 @@ to go
   ; update agent display
   ask agents [ display-agent ]
   ask cops [ display-cop ]
+
+  ask agents [
+    ; social media dependent grievance: change grievance based on the mean grievance on social media
+    if (grievance < mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+      [ set perceived-hardship 1.05 * perceived-hardship ]
+    if (grievance > mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+      [ set perceived-hardship 0.95 * perceived-hardship ]
+  ]
 
   ; calculate rebellion cluster centroids
   update-clusters
@@ -117,12 +130,13 @@ to move ; turtle procedure
     ]
   ]
 
-  ; movement behavior of cops
+  ; movement behavior of agents
   if breed = agents [
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (random 100 <= agents-using-sm) [ ; if possible move towards the centroid
+      ifelse any? centroids and (random 100 <= agents-using-sm and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
+        ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
@@ -144,6 +158,10 @@ end
 
 to-report grievance
   report perceived-hardship * (1 - government-legitimacy)
+end
+
+to-report sm-grievance
+  report grievance
 end
 
 to-report estimated-arrest-probability
@@ -309,7 +327,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.82
+0.21
 0.01
 1
 NIL
@@ -324,7 +342,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-30.0
+12.0
 1.0
 1
 turns
@@ -376,7 +394,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-4.2
+2.6
 0.1
 1
 %
@@ -413,7 +431,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-53.0
+24.0
 1.0
 1
 %
@@ -485,7 +503,7 @@ CHOOSER
 visualization
 visualization
 "2D" "3D"
-1
+0
 
 CHOOSER
 390
@@ -495,7 +513,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-0
+1
 
 CHOOSER
 390
@@ -516,11 +534,37 @@ agents-using-sm
 agents-using-sm
 0
 100
+85.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+550
+467
+735
+500
+sm-response-rate
+sm-response-rate
+0
+100
 50.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+218
+319
+320
+364
+sm-grievance
+[grievance] of agents with [sm-user = true and jail-term > 0]
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
