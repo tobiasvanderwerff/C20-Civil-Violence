@@ -117,12 +117,12 @@ to move ; turtle procedure
     ]
   ]
 
-  ; movement behavior of cops
+  ; movement behavior of agents
   if breed = agents [
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (random 100 <= agents-using-sm) [ ; if possible move towards the centroid
+      ifelse any? centroids and (random 100 <= agents-using-sm and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
@@ -351,7 +351,7 @@ vision
 vision
 0.0
 10.0
-7.0
+6.9
 .1
 1
 patches
@@ -377,7 +377,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-2.6
+4.0
 0.1
 1
 %
@@ -496,7 +496,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-0
+1
 
 CHOOSER
 390
@@ -515,6 +515,21 @@ SLIDER
 556
 agents-using-sm
 agents-using-sm
+0
+100
+85.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+550
+467
+735
+500
+sm-response-rate
+sm-response-rate
 0
 100
 100.0
