@@ -27,9 +27,6 @@ to setup
   set k 2.3
   set threshold 0.1
 
-  ;let all-agents turtles with [breed = agents]
-  ;set sm-agents (n-of ((agents-using-sm / 100) * count all-agents) all-agents)
-
   ask patches [
     ; make background a slightly dark gray
     set pcolor gray - 1
@@ -87,10 +84,10 @@ to go
 
   ask agents [
     ; social media dependent grievance: change grievance based on the mean grievance on social media
-    if (grievance < mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+    if (grievance < sm-grievance)
       [ set perceived-hardship 1.05 * perceived-hardship ]
-    if (grievance > mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
-      [ set perceived-hardship 0.955 * perceived-hardship ]
+    if (grievance > sm-grievance)
+      [ set perceived-hardship 0.95 * perceived-hardship ]
   ]
 
   ; calculate rebellion cluster centroids
@@ -161,7 +158,7 @@ to-report grievance
 end
 
 to-report sm-grievance
-  report grievance
+  report mean [grievance] of agents with [sm-user = true and jail-term > 0]
 end
 
 to-report estimated-arrest-probability
@@ -327,7 +324,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.21
+0.81
 0.01
 1
 NIL
@@ -556,12 +553,12 @@ NIL
 HORIZONTAL
 
 MONITOR
-218
+217
+324
 319
-320
-364
+369
 sm-grievance
-[grievance] of agents with [sm-user = true and jail-term > 0]
+sm-grievance
 2
 1
 11
