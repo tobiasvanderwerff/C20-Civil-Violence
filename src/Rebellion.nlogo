@@ -120,7 +120,7 @@ to move ; turtle procedure
   ; movement behavior of agents
   if breed = agents [
     if agent-move = "none" [] ; agents don't move
-    if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
+    if agent-move = "rand" [randommove]
     if agent-move = "sm-protest" [
       ifelse any? centroids and (random 100 <= agents-using-sm and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
@@ -135,6 +135,14 @@ to move ; turtle procedure
       ]
     ]
   ]
+end
+
+to randommove ;; random movement of an agent
+  rt random 30;
+  lt random 30;
+  ;;try to change direction in 60 degree if unable to move turn around
+  if not can-move? 1 [rt 180]
+  fd 1
 end
 
 ; AGENT BEHAVIOR
@@ -310,7 +318,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.21
+0.95
 0.01
 1
 NIL
@@ -506,7 +514,7 @@ CHOOSER
 agent-move
 agent-move
 "none" "rand" "sm-protest"
-2
+1
 
 SLIDER
 553
