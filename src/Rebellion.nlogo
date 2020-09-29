@@ -105,10 +105,11 @@ to move ; turtle procedure
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
-          ifelse not any? turtles-on patch-ahead 1 [fd 1 ]
-          [
-            if not any? turtles-on patch-ahead 2 [ fd 2 ]
-          ]
+          ;;ifelse not any? turtles-on patch-ahead 1 [fd 1 ]
+          ;;[
+          ;;  if not any? turtles-on patch-ahead 2 [ fd 2 ]
+          ;;]
+          fd 3
         ]
       ]
       [
@@ -127,11 +128,12 @@ to move ; turtle procedure
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
-          if not any? turtles-on patch-ahead 1 [ fd 1 ]
+          ;;if not any? turtles-on patch-ahead 1 [ fd 1 ]
+          fd 3
         ]
       ]
       [
-        if any? targets [ move-to one-of targets ] ; else move randomly
+        randommove ; else move randomly
       ]
     ]
   ]
@@ -142,7 +144,7 @@ to randommove ;; random movement of an agent
   lt random 30;
   ;;try to change direction in 60 degree if unable to move turn around
   if not can-move? 1 [rt 180]
-  fd 1
+  fd random 4
 end
 
 ; AGENT BEHAVIOR
@@ -385,7 +387,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-2.6
+1.1
 0.1
 1
 %
@@ -422,7 +424,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-24.0
+69.0
 1.0
 1
 %
@@ -514,7 +516,7 @@ CHOOSER
 agent-move
 agent-move
 "none" "rand" "sm-protest"
-1
+2
 
 SLIDER
 553
