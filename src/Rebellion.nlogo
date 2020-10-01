@@ -12,6 +12,7 @@ agents-own [
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
   active?             ; if true, then the agent is actively rebelling
   jail-term           ; how many turns in jail remain? (if 0, the agent is not in jail)
+  sm-user             ; is the agent a social media user?
 ]
 
 patches-own [
@@ -54,6 +55,7 @@ to setup
     set perceived-hardship random-float 1.0
     set active? false
     set jail-term 0
+    set sm-user ifelse-value (breed = agents and (random 100 <= agents-using-sm)) [true] [false]
     display-agent
   ]
 
@@ -79,6 +81,14 @@ to go
   ; update agent display
   ask agents [ display-agent ]
   ask cops [ display-cop ]
+
+  ;ask agents [
+    ; social media dependent grievance: change grievance based on the mean grievance on social media
+  ;  if (grievance < sm-grievance)
+  ;    [ set perceived-hardship 1.05 * perceived-hardship ]
+  ;  if (grievance > sm-grievance)
+  ;    [ set perceived-hardship 0.95 * perceived-hardship ]
+  ;]
 
   ; calculate rebellion cluster centroids
   update-clusters
@@ -121,7 +131,7 @@ to move ; turtle procedure
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [randommove]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (random 100 <= agents-using-sm and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
+      ifelse any? centroids and (sm-agent = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
@@ -153,6 +163,13 @@ end
 
 to-report grievance
   report perceived-hardship * (1 - government-legitimacy)
+end
+
+to-report sm-grievance
+  let sm-grievances [grievance] of agents with [sm-user = true and jail-term = 0]
+  ifelse empty? sm-grievances
+    [ report 0.5 ]
+    [ report mean sm-grievances]
 end
 
 to-report estimated-arrest-probability
@@ -318,7 +335,11 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
+<<<<<<< HEAD
 0.95
+=======
+0.3
+>>>>>>> social-media-dependent-grievance
 0.01
 1
 NIL
@@ -540,11 +561,22 @@ sm-response-rate
 sm-response-rate
 0
 100
-22.0
+50.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+217
+324
+319
+369
+sm-grievance
+sm-grievance
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
