@@ -158,7 +158,7 @@ to-report grievance
 end
 
 to-report sm-grievance
-  let sm-grievances [grievance] of agents with [sm-user = true and jail-term > 0]
+  let sm-grievances [grievance] of agents with [sm-user = true and jail-term = 0]
   ifelse empty? sm-grievances
     [ report 0.5 ]
     [ report mean sm-grievances]
