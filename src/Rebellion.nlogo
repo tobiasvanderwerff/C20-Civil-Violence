@@ -122,7 +122,11 @@ to move ; turtle procedure
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
     if agent-move = "sm-protest" [
+<<<<<<< HEAD
       ifelse any? centroids and (random 100 <= agents-using-sm * grievance) [ ; if possible move towards the centroid
+=======
+      ifelse any? centroids and (random 100 <= agents-using-sm and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
+>>>>>>> 6c11bac84056a255ad5b4bba02da71cc7371cc90
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
@@ -496,7 +500,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-0
+1
 
 CHOOSER
 390
@@ -517,7 +521,26 @@ agents-using-sm
 agents-using-sm
 0
 100
+<<<<<<< HEAD
 50.0
+=======
+85.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+550
+467
+735
+500
+sm-response-rate
+sm-response-rate
+0
+100
+22.0
+>>>>>>> 6c11bac84056a255ad5b4bba02da71cc7371cc90
 1
 1
 NIL
