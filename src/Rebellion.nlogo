@@ -335,11 +335,8 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-<<<<<<< HEAD
 0.95
-=======
 0.3
->>>>>>> social-media-dependent-grievance
 0.01
 1
 NIL
