@@ -99,7 +99,7 @@ to move ; turtle procedure
 
   ; movement behavior of cops
   if breed = cops [
-    if cop-move = "rand" [ if any? targets [ move-to one-of targets ]]
+    if cop-move = "rand" [ randommove ]
     if cop-move = "sm-protest" [
       ifelse any? centroids [ ; if possible move towards the centroid
         let centro one-of centroids
@@ -112,9 +112,7 @@ to move ; turtle procedure
           fd 3
         ]
       ]
-      [
-        if any? targets [ move-to one-of targets ] ; else move randomly
-      ]
+      [ randommove ] ; else move randomly
     ]
   ]
 
