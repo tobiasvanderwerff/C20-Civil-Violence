@@ -131,7 +131,7 @@ to move ; turtle procedure
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [randommove]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (sm-agent = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
+      ifelse any? centroids and (sm-user = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
