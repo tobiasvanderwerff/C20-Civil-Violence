@@ -27,9 +27,6 @@ to setup
   set k 2.3
   set threshold 0.1
 
-  ;let all-agents turtles with [breed = agents]
-  ;set sm-agents (n-of ((agents-using-sm / 100) * count all-agents) all-agents)
-
   ask patches [
     ; make background a slightly dark gray
     set pcolor gray - 1
@@ -85,11 +82,11 @@ to go
   ask agents [ display-agent ]
   ask cops [ display-cop ]
 
-  ask agents [
+;  ask agents [
     ; social media dependent grievance: change grievance based on the mean grievance on social media
-    if (grievance < mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+    if (grievance < sm-grievance)
       [ set perceived-hardship 1.05 * perceived-hardship ]
-    if (grievance > mean ([grievance] of agents with [sm-user = true and jail-term > 0]))
+    if (grievance > sm-grievance)
       [ set perceived-hardship 0.95 * perceived-hardship ]
   ]
 
@@ -135,7 +132,7 @@ to move ; turtle procedure
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (random 100 <= agents-using-sm and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
+      ifelse any? centroids and (sm-user = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
@@ -161,7 +158,10 @@ to-report grievance
 end
 
 to-report sm-grievance
-  report grievance
+  let sm-grievances [grievance] of agents with [sm-user = true and jail-term > 0]
+  ifelse empty? sm-grievances
+    [ report 0.5 ]
+    [ report mean sm-grievances]
 end
 
 to-report estimated-arrest-probability
@@ -327,7 +327,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.21
+0.9
 0.01
 1
 NIL
@@ -394,7 +394,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-2.6
+4.0
 0.1
 1
 %
@@ -431,7 +431,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-24.0
+50.0
 1.0
 1
 %
@@ -556,12 +556,12 @@ NIL
 HORIZONTAL
 
 MONITOR
-218
+217
+324
 319
-320
-364
+369
 sm-grievance
-[grievance] of agents with [sm-user = true and jail-term > 0]
+sm-grievance
 2
 1
 11
