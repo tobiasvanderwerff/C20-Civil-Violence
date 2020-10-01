@@ -335,7 +335,6 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.95
 0.3
 0.01
 1
