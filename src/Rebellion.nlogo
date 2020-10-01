@@ -82,13 +82,13 @@ to go
   ask agents [ display-agent ]
   ask cops [ display-cop ]
 
-  ask agents [
+  ;ask agents [
     ; social media dependent grievance: change grievance based on the mean grievance on social media
-    if (grievance < sm-grievance)
-      [ set perceived-hardship 1.05 * perceived-hardship ]
-    if (grievance > sm-grievance)
-      [ set perceived-hardship 0.95 * perceived-hardship ]
-  ]
+  ;  if (grievance < sm-grievance)
+  ;    [ set perceived-hardship 1.05 * perceived-hardship ]
+  ;  if (grievance > sm-grievance)
+  ;    [ set perceived-hardship 0.95 * perceived-hardship ]
+  ;]
 
   ; calculate rebellion cluster centroids
   update-clusters
