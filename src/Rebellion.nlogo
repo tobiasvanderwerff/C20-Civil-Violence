@@ -117,12 +117,12 @@ to move ; turtle procedure
     ]
   ]
 
-  ; movement behavior of cops
+  ; movement behavior of agents
   if breed = agents [
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [ if any? targets [ move-to one-of targets ]]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (random 100 <= agents-using-sm) [ ; if possible move towards the centroid
+      ifelse any? centroids and (random 100 <= agents-using-sm * grievance) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
@@ -310,7 +310,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.21
+0.64
 0.01
 1
 NIL
@@ -325,7 +325,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-12.0
+21.0
 1.0
 1
 turns
@@ -377,7 +377,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-2.6
+5.3
 0.1
 1
 %
@@ -414,7 +414,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-24.0
+61.0
 1.0
 1
 %
@@ -517,7 +517,7 @@ agents-using-sm
 agents-using-sm
 0
 100
-100.0
+50.0
 1
 1
 NIL

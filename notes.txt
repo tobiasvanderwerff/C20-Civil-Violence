@@ -1,0 +1,12 @@
+
+
+probability of random spot being chosen for protest is dependent on grievance of social media users
+if multiple centroids pick closets centroid
+time of a centroid existing is a slider
+
+grievance of social media using agents should be dependent on the grievance levels of other social media users
+
+random movement 1: as in original model
+random movement 2: more realistic, no teleportation
+
+(less bumping and blocking each other: is it possible to allow two agents to stand on one patch?)
