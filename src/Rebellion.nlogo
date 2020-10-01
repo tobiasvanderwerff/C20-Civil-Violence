@@ -7,6 +7,11 @@ globals [
   threshold           ; by how much must G > N to make someone rebel?
 ]
 
+; social media task force
+cops-own [
+  sm-responder
+]
+
 agents-own [
   risk-aversion       ; R, fixed for the agent's lifetime, ranging from 0-1 (inclusive)
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
@@ -45,6 +50,7 @@ to setup
   create-cops round (initial-cop-density * .01 * count patches) [
     move-to one-of patches with [ not any? turtles-here ]
     display-cop
+    set sm-responder ifelse-value (breed = cops and (random 100 <= cop-response-rate)) [true] [false]
   ]
 
   ; create agents
@@ -111,7 +117,7 @@ to move ; turtle procedure
   if breed = cops [
     if cop-move = "rand" [ randommove ]
     if cop-move = "sm-protest" [
-      ifelse any? centroids [ ; if possible move towards the centroid
+      ifelse any? centroids and (sm-responder = true)[ ; if possible the sm-task-force-cops move towards the centroid
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           set heading towards one-of centroids
@@ -335,7 +341,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.3
+0.83
 0.01
 1
 NIL
@@ -350,7 +356,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-12.0
+31.0
 1.0
 1
 turns
@@ -402,7 +408,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-1.1
+3.7
 0.1
 1
 %
@@ -534,10 +540,10 @@ agent-move
 2
 
 SLIDER
-553
-523
-730
-556
+551
+565
+728
+598
 agents-using-sm
 agents-using-sm
 0
@@ -549,10 +555,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-550
-467
-735
-500
+547
+521
+732
+554
 sm-response-rate
 sm-response-rate
 0
@@ -573,6 +579,21 @@ sm-grievance
 2
 1
 11
+
+SLIDER
+545
+459
+735
+492
+cop-response-rate
+cop-response-rate
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
