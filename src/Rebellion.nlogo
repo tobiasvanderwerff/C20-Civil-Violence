@@ -234,37 +234,62 @@ end
 
 ; CENTROIDS
 to reset-centroids
-  let colors base-colors
-  ask centroids [die]
-  create-centroids 1 [
-    move-to one-of agents
-    set size 5
-    set color last colors + 1
-    set colors butlast colors
+  if center-of-protest = "dynamic" [
+    let colors base-colors
+    ask centroids [die]
+    create-centroids 1 [
+      move-to one-of agents
+      set size 5
+      set color last colors + 1
+      set colors butlast colors
+    ]
+  ]
+  if center-of-protest = "predefined" [
+
   ]
 end
 
 to update-clusters
   let movement-threshold 0.1
-
-  if any? agents with [ active? ] [ ; create new centroid
-    create-centroids 1 [
-    move-to one-of agents with [active?]
-    set size 5
-    set color red - 1
+  if center-of-protest = "predefined" [
+    new-xcor = random pxcor
+    new-ycor = random pycor
+    if not any? centroids [
+      create-centroids 1 [
+        set size 5
+        set color red - 1
+        setxy new-xcor new-ycor
+      ]
     ]
-  ]
 
-  ask centroids [
-    let my-points agents with [ active? ]
-    ifelse any? my-points [
-      let new-xcor mean [ xcor ] of my-points
-      let new-ycor mean [ ycor ] of my-points
+    ifelse
+    random 100 <= 3 [
       setxy new-xcor new-ycor
     ]
-    [ die ] ; kill centroid
+    random 100 <= 6 [
+      die
+    ]
   ]
-  update-plots
+  if center-of-protest = "dynamic" [
+    if any? agents with [ active? ] [ ; create new centroid
+      create-centroids 1 [
+        move-to one-of agents with [active?]
+        set size 5
+        set color red - 1
+      ]
+    ]
+
+    ask centroids [
+      let my-points agents with [ active? ]
+      ifelse any? my-points [
+        let new-xcor mean [ xcor ] of my-points
+        let new-ycor mean [ ycor ] of my-points
+        setxy new-xcor new-ycor
+      ]
+      [ die ] ; kill centroid
+    ]
+    update-plots
+  ]
 end
 
 
@@ -594,6 +619,16 @@ cop-response-rate
 1
 NIL
 HORIZONTAL
+
+CHOOSER
+390
+571
+527
+616
+center-of-protest
+center-of-protest
+"predefined" "dynamic"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
