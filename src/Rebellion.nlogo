@@ -245,29 +245,24 @@ to reset-centroids
     ]
   ]
   if center-of-protest = "predefined" [
-
   ]
 end
 
 to update-clusters
   let movement-threshold 0.1
   if center-of-protest = "predefined" [
-    new-xcor = random pxcor
-    new-ycor = random pycor
-    if not any? centroids [
-      create-centroids 1 [
-        set size 5
-        set color red - 1
-        setxy new-xcor new-ycor
+    if any? agents [ ; create new centroid
+      if not any? centroids[
+        if (random 100 < 10) [create-centroids 1 [
+          setxy random-pxcor random-pycor
+          set size 5
+          set color red - 1
+        ]
       ]
     ]
-
-    ifelse
-    random 100 <= 3 [
-      setxy new-xcor new-ycor
-    ]
-    random 100 <= 6 [
-      die
+  ]
+    ask centroids [
+      if (random 100 < 5) [die]
     ]
   ]
   if center-of-protest = "dynamic" [
@@ -366,7 +361,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.83
+0.82
 0.01
 1
 NIL
@@ -381,7 +376,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-31.0
+15.0
 1.0
 1
 turns
@@ -433,7 +428,7 @@ initial-cop-density
 initial-cop-density
 0.0
 100.0
-3.7
+4.0
 0.1
 1
 %
@@ -470,7 +465,7 @@ initial-agent-density
 initial-agent-density
 0.0
 100.0
-69.0
+50.0
 1.0
 1
 %
@@ -614,7 +609,7 @@ cop-response-rate
 cop-response-rate
 0
 100
-50.0
+80.0
 1
 1
 NIL
