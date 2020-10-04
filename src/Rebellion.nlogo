@@ -233,7 +233,10 @@ to display-cop
 end
 
 ; CENTROIDS
+;Dynamic protest calculates center based on the mean of protesters
+;Predefined - assigned randomly on a grid
 to reset-centroids
+  ;Predefine protest
   if center-of-protest = "dynamic" [
     let colors base-colors
     ask centroids [die]
@@ -244,16 +247,19 @@ to reset-centroids
       set colors butlast colors
     ]
   ]
+  ;Dynamic protest
   if center-of-protest = "predefined" [
   ]
 end
 
 to update-clusters
   let movement-threshold 0.1
+  ;If no centroid exist create new predefined center of protest with 10% probability per tick
+  ;If centroid exist destroy is with probability 5% per tick
   if center-of-protest = "predefined" [
     if any? agents [ ; create new centroid
       if not any? centroids[
-        if (random 100 < 10) [create-centroids 1 [
+        if (random 100 <= 10) [create-centroids 1 [
           setxy random-pxcor random-pycor
           set size 5
           set color red - 1
@@ -262,9 +268,10 @@ to update-clusters
     ]
   ]
     ask centroids [
-      if (random 100 < 5) [die]
+      if (random 100 <= 5) [die]
     ]
   ]
+  ;Create new center if there are active agents and move it based on the mean position of those agents
   if center-of-protest = "dynamic" [
     if any? agents with [ active? ] [ ; create new centroid
       create-centroids 1 [
