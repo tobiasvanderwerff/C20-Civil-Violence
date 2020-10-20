@@ -5,6 +5,7 @@ breed [ centroids centroid ]
 globals [
   k                   ; factor for determining arrest probability
   threshold           ; by how much must G > N to make someone rebel?
+  size-of-protest     ; size of protest defined as ration of active agent to total number of agents
 ]
 
 ; social media task force
@@ -169,6 +170,10 @@ end
 
 to-report grievance
   report perceived-hardship * (1 - government-legitimacy)
+end
+
+to-report size-of-protest
+  report
 end
 
 to-report sm-grievance
@@ -631,6 +636,17 @@ center-of-protest
 center-of-protest
 "predefined" "dynamic"
 0
+
+SWITCH
+390
+626
+567
+659
+dependence-on-size
+dependence-on-size
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
