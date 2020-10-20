@@ -5,7 +5,6 @@ breed [ centroids centroid ]
 globals [
   k                   ; factor for determining arrest probability
   threshold           ; by how much must G > N to make someone rebel?
-  size-of-protest     ; size of protest defined as ration of active agent to total number of agents
 ]
 
 ; social media task force
@@ -121,12 +120,9 @@ to move ; turtle procedure
       ifelse any? centroids and (sm-responder = true)[ ; if possible the sm-task-force-cops move towards the centroid
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
-          set heading towards one-of centroids
-          ;;ifelse not any? turtles-on patch-ahead 1 [fd 1 ]
-          ;;[
-          ;;  if not any? turtles-on patch-ahead 2 [ fd 2 ]
-          ;;]
-          fd 3
+          ;set heading towards one-of centroids
+          ;fd 3
+          ifelse dependence-on-size [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]] [set heading towards one-of centroids fd 3]
         ]
       ]
       [ randommove ] ; else move randomly
@@ -138,13 +134,15 @@ to move ; turtle procedure
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [randommove]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (sm-user = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
+      ifelse any? centroids and sm-user = true [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
-          set heading towards one-of centroids
-          ;;if not any? turtles-on patch-ahead 1 [ fd 1 ]
-          fd 3
+
+          ;If denepdence-on-size is on then with probability of size-of-protest times two agent will move towards the protest otherwise move randomly
+          ;If its off then just move towards the protest
+          ifelse dependence-on-size [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]] [set heading towards one-of centroids fd 3]
+
         ]
       ]
       [
@@ -173,7 +171,9 @@ to-report grievance
 end
 
 to-report size-of-protest
-  report
+  let num-active count agents with [active?]
+  let total-num count agents
+  report num-active / total-num
 end
 
 to-report sm-grievance
@@ -373,7 +373,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.82
+0.94
 0.01
 1
 NIL
@@ -388,7 +388,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-15.0
+2.0
 1.0
 1
 turns
@@ -644,9 +644,27 @@ SWITCH
 659
 dependence-on-size
 dependence-on-size
-1
+0
 1
 -1000
+
+PLOT
+814
+172
+1014
+322
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot size-of-protest"
 
 @#$#@#$#@
 ## WHAT IS IT?
