@@ -120,11 +120,9 @@ to move ; turtle procedure
       ifelse any? centroids and (sm-responder = true)[ ; if possible the sm-task-force-cops move towards the centroid
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
-          ;set heading towards one-of centroids
-          ;fd 3
           if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
-          if not dependence-on-size and dependence-on-grievance [ifelse random 100 <= grievance * 100 [set heading towards one-of centroids fd 3] [randommove]]
-          if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * grievance * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and dependence-on-grievance [set heading towards one-of centroids fd 3]
+          if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
           if not dependence-on-size and not dependence-on-grievance [set heading towards one-of centroids fd 3]
         ]
       ]
