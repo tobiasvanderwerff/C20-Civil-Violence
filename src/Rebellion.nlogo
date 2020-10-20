@@ -122,7 +122,10 @@ to move ; turtle procedure
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
           ;set heading towards one-of centroids
           ;fd 3
-          ifelse dependence-on-size [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]] [set heading towards one-of centroids fd 3]
+          if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and dependence-on-grievance [ifelse random 100 <= grievance * 100 [set heading towards one-of centroids fd 3] [randommove]]
+          if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * grievance * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and not dependence-on-grievance [set heading towards one-of centroids fd 3]
         ]
       ]
       [ randommove ] ; else move randomly
@@ -139,10 +142,12 @@ to move ; turtle procedure
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
 
-          ;If denepdence-on-size is on then with probability of size-of-protest times two agent will move towards the protest otherwise move randomly
-          ;If its off then just move towards the protest
-          ifelse dependence-on-size [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]] [set heading towards one-of centroids fd 3]
-
+          ;For if statements to cover all possible combinations of two switches. if one of the swithces is active agent moves to centroid based on size of protest/grievance, if both switches are active
+          ;agent moves with multiplied probability of both dependencies and if non are active agent that uses social media always go to a protest
+          if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and dependence-on-grievance [ifelse random 100 <= grievance * 100 [set heading towards one-of centroids fd 3] [randommove]]
+          if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * grievance * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and not dependence-on-grievance [set heading towards one-of centroids fd 3]
         ]
       ]
       [
@@ -373,7 +378,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.94
+0.85
 0.01
 1
 NIL
@@ -388,7 +393,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-2.0
+18.0
 1.0
 1
 turns
@@ -644,7 +649,7 @@ SWITCH
 659
 dependence-on-size
 dependence-on-size
-0
+1
 1
 -1000
 
@@ -664,7 +669,18 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot size-of-protest"
+"default" 1.0 0 -16777216 true "" "plot grievance"
+
+SWITCH
+389
+666
+602
+699
+dependence-on-grievance
+dependence-on-grievance
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
