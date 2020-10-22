@@ -5,7 +5,7 @@ To do this we extend an adaptation of Epstein's model that is part of the Netlog
 The implementation follows the multi-agent systems (MAS) paradigm.
 
 ## How to run
-1. Download the latest version of Netlogo: https://ccl.northwestern.edu/netlogo/download.shtml. 
+1. Download Netlogo 6.1.1: https://ccl.northwestern.edu/netlogo/download.shtml. 
 2. In Netlogo, open the Rebellion.nlogo file. 
 
 ## References
