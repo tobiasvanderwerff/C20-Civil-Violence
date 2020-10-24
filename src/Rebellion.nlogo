@@ -5,6 +5,8 @@ breed [ centroids centroid ]
 globals [
   k                   ; factor for determining arrest probability
   threshold           ; by how much must G > N to make someone rebel?
+  revolt              ; revolt counts number of ticks when there was at least 15 active agents
+  rebellion           ; rebillion counts number of ticks when there was at least 100 active agents
 ]
 
 ; social media task force
@@ -98,7 +100,9 @@ to go
 
   ; calculate rebellion cluster centroids
   update-clusters
-
+  ;Update revolt and rebellion counters if conditions are met
+  if count agents with [active?] > 15 [set revolt revolt + 1]
+  if count agents with [active?] > 100 [set rebellion rebellion + 1]
   ; advance clock and update plots
   tick
 end
@@ -651,24 +655,6 @@ dependence-on-size
 1
 -1000
 
-PLOT
-814
-172
-1014
-322
-plot 1
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot grievance"
-
 SWITCH
 389
 666
@@ -679,6 +665,17 @@ dependence-on-grievance
 0
 1
 -1000
+
+MONITOR
+10
+628
+296
+673
+Number of tick that agents were revolting
+revolt
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
