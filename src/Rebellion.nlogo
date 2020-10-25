@@ -103,6 +103,8 @@ to go
   tick
 end
 
+
+
 ; AGENT AND COP BEHAVIOR
 
 ; move to an empty patch
