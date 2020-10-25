@@ -139,7 +139,7 @@ to move ; turtle procedure
     if agent-move = "none" [] ; agents don't move
     if agent-move = "rand" [randommove]
     if agent-move = "sm-protest" [
-      ifelse any? centroids and sm-user = true [ ; if possible move towards the centroid
+      ifelse any? centroids and (sm-user = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
@@ -380,7 +380,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.85
+0.82
 0.01
 1
 NIL
@@ -602,7 +602,7 @@ sm-response-rate
 sm-response-rate
 0
 100
-50.0
+85.0
 1
 1
 NIL
@@ -628,7 +628,7 @@ cop-response-rate
 cop-response-rate
 0
 100
-80.0
+50.0
 1
 1
 NIL
@@ -642,7 +642,7 @@ CHOOSER
 center-of-protest
 center-of-protest
 "predefined" "dynamic"
-0
+1
 
 SWITCH
 390
@@ -1118,6 +1118,58 @@ setup
 repeat 5 [ go ]
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="10" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="500"/>
+    <metric>revolt</metric>
+    <metric>rebellion</metric>
+    <metric>count agents with [active?]</metric>
+    <enumeratedValueSet variable="government-legitimacy">
+      <value value="0.82"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sm-response-rate">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cop-response-rate">
+      <value value="80"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="vision">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dependence-on-grievance">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-cop-density">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="agents-using-sm">
+      <value value="85"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dependence-on-size">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cop-move">
+      <value value="&quot;sm-protest&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-agent-density">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-jail-term">
+      <value value="18"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visualization">
+      <value value="&quot;2D&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="agent-move">
+      <value value="&quot;sm-protest&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="center-of-protest">
+      <value value="&quot;predefined&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
