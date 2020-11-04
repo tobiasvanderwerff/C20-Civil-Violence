@@ -2,31 +2,35 @@ breed [ agents an-agent ]
 breed [ cops cop ]
 breed [ centroids centroid ]
 
+; We have marked the variables that we (Group C20) newly introduced
 globals [
-  k                   ; factor for determining arrest probability
+  k                   ; factor for determining arrest probability (Group C20)
   threshold           ; by how much must G > N to make someone rebel?
-  revolt              ; revolt counts number of ticks when there was at least 15 active agents
-  rebellion           ; rebillion counts number of ticks when there was at least 100 active agents
+  revolt              ; revolt counts number of ticks when there was at least 15 active agents (Group C20)
+  rebellion           ; rebellion counts number of ticks when there was at least 100 active agents (Group C20)
 ]
 
 ; social media task force
 cops-own [
-  sm-responder
+  sm-responder        ; whether a police agent is aware of a possible center of protest shared on social media (Group C20)
 ]
 
 agents-own [
   risk-aversion       ; R, fixed for the agent's lifetime, ranging from 0-1 (inclusive)
   perceived-hardship  ; H, also ranging from 0-1 (inclusive)
-  active?             ; if true, then the agent is actively rebelling
+  active?             ; if true, then the agent is actively rebelling (Group C20)
   jail-term           ; how many turns in jail remain? (if 0, the agent is not in jail)
-  sm-user             ; is the agent a social media user?
+  sm-user             ; is the agent a social media user? (Group C20)
 ]
 
 patches-own [
   neighborhood        ; surrounding patches within the vision radius
-
 ]
 
+
+; The basic structure of the setup method was already given by Uri Wilensky.
+; We (Group C20) modified create-cops and create-agents in order to appropriately set our newly introduced variables
+; We (Group C20) newly introduced the initialization of centroids
 to setup
   clear-all
 
@@ -75,7 +79,9 @@ to setup
   reset-centroids
 end
 
+
 to go
+  ; block by Uri Wilensky
   ask turtles [
     ; Rule M: Move to a random site within your vision
     if (breed = agents and jail-term = 0) or breed = cops [ move ]
@@ -91,11 +97,15 @@ to go
   ask cops [ display-cop ]
 
 
+  ; block by us (Group C20)
   ; calculate rebellion cluster centroids
   update-clusters
   ; Update revolt and rebellion counters if conditions are met
-  if count agents with [active?] > 15 [set revolt revolt + 1]
-  if count agents with [active?] > 100 [set rebellion rebellion + 1]
+  ifelse count agents with [active?] > 15 [set revolt revolt + 1]
+  [set revolt 0]
+  ifelse count agents with [active?] > 100 [set rebellion rebellion + 1]
+  [set rebellion 0]
+
   ; advance clock and update plots
   tick
 end
@@ -104,45 +114,75 @@ end
 
 ; AGENT AND COP BEHAVIOR
 
-; move to an empty patch
-to move ; turtle procedure
-  let targets neighborhood with [
-    ; move to a patch in vision; candidate patches are
-    ; empty or contain only jailed agents
-    not any? cops-here and all? agents-here [ jail-term > 0 ]
-  ]
+; the move method is ours (Group C20)
+; turtles move to an empty patch within vision
+to move
 
-  ; movement behavior of cops
+  ; movement behavior of police agents
   if breed = cops [
+
+    ; the "rand" setting represents the original design of random movement within a field of vision by Epstein
     if cop-move = "rand" [ randommove ]
+
+    ; the "sm-protest" setting causes cops be aware of the social media protest
+    ; this enables that their movement is directed towards the center of protests
     if cop-move = "sm-protest" [
-      ifelse any? centroids and (sm-responder = true)[ ; if possible the sm-task-force-cops move towards the centroid
+
+      ; if possible the sm-task-force-cops move towards the centroid
+      ; cops who don't have the sm-responder attribute only move randomly
+      ifelse any? centroids and (sm-responder = true)[
+
+        ; k-clustering only used with k=1
+        ; centro is the center of protest as determined by the k-means clustering algorithm
         let centro one-of centroids
-        ;For if statements to cover all possible combinations of two switches. if one of the swithces is active agent moves to centroid based on size of protest/grievance, if both switches are active
-        ;agent moves with multiplied probability of both dependencies and if non are active agent that uses social media always go to a protest
+
+        ; an agent that is on the same patch as the center of protest doesn't move
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
+
+          ; four if statements to cover all possible combinations of two parameters
+          ; 1) dependence-on-size: whether the size of a protest influences the probability at which an agent is drawn towards a center of protest
+          ; 2) dependence-on-grievance: whether the level of grievance influences the probability at which an agent is drawn towards a center of protest
+          ; attribute 2) doesn't impact cops' movement behavior since they don't have grievance as the civilian agents do
+          ; When 1) and 2) are set to false then cops with the attribute sm-responder always direct their movement towards the center of protest
           if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
           if not dependence-on-size and dependence-on-grievance [set heading towards one-of centroids fd 3]
           if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
           if not dependence-on-size and not dependence-on-grievance [set heading towards one-of centroids fd 3]
         ]
       ]
-      [ randommove ] ; else move randomly
+      [ randommove ] ; when no centroid is present then move randomly
     ]
   ]
 
-  ; movement behavior of agents
+  ; movement behavior of civilian agents
   if breed = agents [
-    if agent-move = "none" [] ; agents don't move
+
+    ; the civilian agents don't move
+    if agent-move = "none" []
+
+    ; the civlian agents move randomly within their field of vision in line with Epstein
     if agent-move = "rand" [randommove]
+
+    ; the "sm-protest" setting causes civilian agents with the attribute sm-user to be aware of the center of protest
     if agent-move = "sm-protest" [
-      ifelse any? centroids and (sm-user = true and random 100 <= sm-response-rate) [ ; if possible move towards the centroid
-        ; the probability that an agent uses social media is set by agents-using-sm
+
+
+      ; for movement towards the center of protest ...
+      ; 1) there must be a centroid
+      ; 2) the agent must be a social media user
+      ; 3)there probability that a sm-user responds to the protest must be satisfied
+      ifelse any? centroids and (sm-user = true and random 100 <= sm-response-rate) [
+
+        ; the centroid
         let centro one-of centroids
+
+        ; an agent that is on the same patch as the center of protest doesn't move
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
 
-          ;For if statements to cover all possible combinations of two switches. if one of the swithces is active agent moves to centroid based on size of protest/grievance, if both switches are active
-          ;agent moves with multiplied probability of both dependencies and if non are active agent that uses social media always go to a protest
+          ; four if statements to cover all possible combinations of two parameters
+          ; 1) dependence-on-size: whether the size of a protest influences the probability at which an agent is drawn towards a center of protest
+          ; 2) dependence-on-grievance: whether the level of grievance influences the probability at which an agent is drawn towards a center of protest
+          ; When 1) and 2) are set to false then agents with the attribute sm-user always direct their movement towards the center of protest
           if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
           if not dependence-on-size and dependence-on-grievance [ifelse random 100 <= grievance * 100 [set heading towards one-of centroids fd 3] [randommove]]
           if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * grievance * 200 [set heading towards one-of centroids fd 3] [randommove]]
@@ -150,38 +190,49 @@ to move ; turtle procedure
         ]
       ]
       [
-        randommove ; else move randomly
+        randommove ; when there is no cluster move randomly
       ]
     ]
   ]
 end
 
-to randommove ;; random movement of an agent
+; random movement of an agent
+; the move method is modified by us (Group C20) to avoid agents blocking each other
+to randommove
+
+  ; change direction within a 60 degree forwards cone
   rt random 30;
   lt random 30;
-  ;;try to change direction in 60 degree if unable to move turn around
+
+  ; if unable to move 1 patch ahead then turn around
   if not can-move? 1 [rt 180]
+
+  ; move forwards between 0 and 4 steps
   fd random 4
 end
 
 ; AGENT BEHAVIOR
 
+; implemented by Uri Wilensky as found in Epstein, not modified by us (Group C20)
 to determine-behavior
   set active? (grievance - risk-aversion * estimated-arrest-probability > threshold)
 end
 
+; implemented by Uri Wilensky as found in Epstein, not modified by us (Group C20)
 to-report grievance
   report perceived-hardship * (1 - government-legitimacy)
 end
 
-;Calculate size of a protest based on the numver of active agents
+; introduced by us (group C20)
+; calculate the size of a protest based on the number of active agents
 to-report size-of-protest
   let num-active count agents with [active?]
   let total-num count agents
   report num-active / total-num
 end
 
-
+; implemented by Uri Wilensky as found in Epstein, not modified by us (Group C20)
+; calculate the probability of arrest for a civilian agent depending on the number of police agents and other active civilians nearby
 to-report estimated-arrest-probability
   let c count cops-on neighborhood
   let a 1 + count (agents-on neighborhood) with [ active? ]
@@ -191,6 +242,8 @@ end
 
 ; COP BEHAVIOR
 
+; implemented by Uri Wilensky as found in Epstein, not modified by us (Group C20)
+; police agents arrest actively protesting civilian agents within the police agents' vision
 to enforce
   if any? (agents-on neighborhood) with [ active? ] [
     ; arrest suspect
@@ -204,6 +257,7 @@ to enforce
 end
 
 ; VISUALIZATION OF AGENTS AND COPS
+; this visualization block was implemented by Uri Wilensky
 
 to display-agent  ; agent procedure
   ifelse visualization = "2D"
@@ -237,13 +291,28 @@ to display-cop
 end
 
 ; CENTROIDS
-;Dynamic protest calculates center based on the mean of protesters
-;Predefined - assigned randomly on a grid
+; this centroids block was implemented by us (Group C20)
+; the implemenation is in parts inspired by Uri Wilensky's implementation for the k-means algorithm found in the NetLogo library
+
+; two methods of determining the center of protest have been developed
+; 1) the "dynamic" setting calculates a center of protest using the k-means algorithm
+; 2) the "predefined" setting where a center of protest spawns randomly at a random position and is also randomly destroyed after some time
+
+
+
+; active civilian agents are the data points on which the algorithm runs to find the location where most protesters are concentrated
+; using k=1 only one center of protest is formed
+
+; reset centroid when setting up the model
 to reset-centroids
-  ;Predefine protest
+
+  ; clean up for setting "dynamic"
   if center-of-protest = "dynamic" [
+    ; remove previous centroid
     let colors base-colors
     ask centroids [die]
+
+    ; spawn k=1 new centroid
     create-centroids 1 [
       move-to one-of agents
       set size 5
@@ -251,20 +320,30 @@ to reset-centroids
       set colors butlast colors
     ]
   ]
-  ;Dynamic protest
+
+  ; clean up for setting predefined
+  ; remove previous centroid
   if center-of-protest = "predefined" [
+    ask centroids [die]
   ]
 end
 
+; determine how clusters behave going from one tick to the next
 to update-clusters
-  let movement-threshold 0.1
-  ;If no centroid exist create new predefined center of protest with 10% probability per tick
-  ;If centroid exist destroy is with probability 5% per tick
+
+  ; centroid setting "predefined"
+  ; if no centroid exists create a new predefined center of protest with 10% probability per tick
+  ; if a centroid exists destroy it with probability 5% per tick
   if center-of-protest = "predefined" [
-    if any? agents [ ; create new centroid
+
+    ; create a cluster when there are some agents and no clusters
+    if any? agents [
       if not any? centroids[
+
+        ; create a new centroid with some probability
         if (random 100 <= 10) [create-centroids 1 [
-          ;Create new centroid and random x-y location
+
+          ; create the new centroid at a random location
           setxy random-pxcor random-pycor
           set size 5
           set color red - 1
@@ -272,29 +351,47 @@ to update-clusters
       ]
     ]
   ]
+    ; destroy a centroid with some probability
     ask centroids [
       if (random 100 <= 5) [die]
     ]
   ]
-  ;Create new center if there are active agents and move it based on the mean position of those agents
+
+  ; centroid setting "dynamic"
+  ; create new centroid if there are active agents and move it based on the mean position of those agents
   if center-of-protest = "dynamic" [
-    if any? agents with [ active? ] [ ; create new centroid
+
+    ; create a new centroid only when there are actively protesting civilians
+    if any? agents with [ active? ] [
       create-centroids 1 [
+
+        ; the centroid is created on top of a random active protester
         move-to one-of agents with [active?]
         set size 5
         set color red - 1
       ]
     ]
-    ;Calculate new position of a centroid based on the positions of active agents.
+
+    ; calculate the new position of a centroid based on the positions of active agents using k-means clustering
     ask centroids [
+
+      ; the data used to cluster are the active agents
       let my-points agents with [ active? ]
+
+      ; if there are any active agents
       ifelse any? my-points [
+
+        ; take the mean x and y coordinates of all active agents as x and y coordinates for the cluster
         let new-xcor mean [ xcor ] of my-points
         let new-ycor mean [ ycor ] of my-points
         setxy new-xcor new-ycor
       ]
-      [ die ] ; kill centroid
+
+      ; when there are no active agents remove the centroid
+      [ die ]
     ]
+
+    ; update plots so the new position of a cluster becomes visible
     update-plots
   ]
 end
@@ -373,7 +470,7 @@ government-legitimacy
 government-legitimacy
 0.0
 1.0
-0.82
+0.49
 0.01
 1
 NIL
@@ -559,7 +656,7 @@ CHOOSER
 cop-move
 cop-move
 "rand" "sm-protest"
-1
+0
 
 CHOOSER
 390
@@ -624,7 +721,7 @@ CHOOSER
 center-of-protest
 center-of-protest
 "predefined" "dynamic"
-1
+0
 
 SWITCH
 390
@@ -649,11 +746,11 @@ dependence-on-grievance
 -1000
 
 MONITOR
-10
-628
-296
-673
-Number of tick that agents were revolting
+390
+706
+571
+751
+Ticks of continuous revolt
 revolt
 17
 1
@@ -664,43 +761,97 @@ TEXTBOX
 433
 682
 451
-Our addition to the imlementation\n
+Our (group C20) added UI elements.
 14
 0.0
 1
 
-@#$#@#$#@
-# General description of final implementation.
-In our implementation we kept most of the original parts of implementation and moslty we added additionals parameters on top of them. Mainly we changed the movement of the agents
-by first changing the basis of the movement itself and adding several additional parameters that affect movement in one way or the other.
-# Our additions to the original implementation
-## Non-grid related movement
-In the orignal implementation agents moved only on x and y coordinates and only for the whole number of steps. In our implementation agents can move in any direction on a 360 degree circle. 
-## Added sliders
-### Cop-response rate
-Slider responsible for the percentage of cops that go to a center of protest.
-### sm-response rate
-Slider responsible for the percentage of citizens that go to a center of protest.
-### agents-using-sm
-Slider responsible for the amount of agents using social media.
-## Added choosers
-### cop-move
-This chooser lets us select the type of cop movement. It can be rand (ignoring center of protest and just moving around) or sm-protest. During sm-protest part of the police force moves to the center of protest to supress the potential revolt.
-### agent-move
-Three options available for this: rand, sm-protest, none. Rand and sm-protest act in the same way as cop-move chooser. None stops all of the movement.
-### center-of-protest
-There are two options for the center-of-protest. It can either be dynamic or predefined. When center-of-protest is dynamic it calculated as a mean position of all revolting agents on a map.
-Predefined center of protest is created at random stop with 10% probability when there are no ongoing protest. An ongoing protest has 5% chance to stop.
-## Added buttons
-### dependence-on-size
-When this button is on agents 'desire' to go to the center of protest depends on the size of the protest. It is defined as a ratio of active agents to the total number of agents multiplied by 4. It can take value between 0 and 1 and acts as a probability of going to a protest.
-### dependence-on-grievance
-When this button is on an agent moves to a protest depending on his grievance. In this case agent's grievance acts as a probability of going to a protest.
-## List of variables, functions and parameters that were added to the code or modified
-Parameters: global[revolt,rebellion],cops-own[sm-responder],agents-own[sm-user].
-Modified functions:to-go(added counts and cluster calculations),to-move(almost fully reimplemented to meet our needs).
-New functions: to-reset-centroids, to-update-clusters(both are responsible for showing and updating center of protest), randommove,
+MONITOR
+578
+708
+771
+753
+Ticks of continous rebellion
+rebellion
+17
+1
+11
 
+@#$#@#$#@
+# General description of the final implementation
+
+
+In this implementation we extend Uri Wilensky's implementation of Epstein's model to test hypotheses about the effects of social media on protests.
+In our (group C20) implementation we kept most of the original parts of the implementation and added additional parameters on top.
+We changed the way that agents move by giving movement a direction that is driven by a global vision that is enabled by social media.
+In this section we discuss our additions to Wilensky's implementation.
+Wilensky's original documentation can be found further below.
+
+# Our additions to the original implementation
+
+## Non-grid related movement
+
+In the original implementation agents move randomly from their current position to a patch in their field of vision.
+In our implementation this behavior can be replicated by setting the sliders cop-move and agent-move to the "rand" setting.
+In the additionally implemented methods of movement we limit agents' movement to smaller steps and add an element of direction that is enabled by a center of protest.
+This center of protest is conceptually known to agents by the use of social media.
+
+## Added sliders
+
+### cop-response-rate
+
+Slider responsible for the percentage of cops that go to a center of protest.
+
+### sm-response-rate
+
+Slider responsible for the percentage of citizens that go to a center of protest.
+
+### agents-using-sm
+
+Slider responsible for the amount of agents using social media.
+Only agents that use social media can respond to the center of protest.
+
+## Added choosers
+
+### cop-move
+
+This chooser lets us select the type of cop movement. It can be "rand" (ignoring the center of protest and just moving around) or "sm-protest". During "sm-protest" part of the police force moves to the center of protest to supress the potential revolt.
+
+### agent-move
+
+Three options are available: "rand", "sm-protest" and "none". "rand" and "sm-protest" act in the same way as the "cop-move" chooser but applied to civilian agents instead of police agents. "none" stops all movement of civilian agents.
+
+### center-of-protest
+
+There are two options for the center-of-protest. It can either be "dynamic" or "predefined". When center-of-protest is "dynamic" it is calculated as the mean position of all revolting agents on a map using k-means clustering.
+The "predefined" center of protest is created at a random position with 10% probability when no center of protest currently exists. An existing center of protest has a 5% chance to vanish.
+
+## Added buttons
+
+### dependence-on-size
+
+When this button is on agents 'desire' to go to the center of protest depends on the size of the protest. It is defined as a ratio of active agents to the total number of agents multiplied by 4. It can take a value between 0 and 1 and acts as a probability of going to a protest.
+
+### dependence-on-grievance
+
+When this button is on an agent's likeliness to move towards a center of protest depends on the agent's grievance.
+
+## List of variables, functions and parameters that were added to the code or modified
+
+Parameters:
+global [revolt, rebellion]
+cops-own [sm-responder]
+agents-own [sm-user].
+
+Modified functions:
+to-go (added counts and cluster calculations)
+to-move (almost fully reimplemented to meet our needs)
+
+New functions:
+to-reset-centroids
+to-update-clusters (both are responsible for showing and updating center of protest), randommove
+
+Further details about authorship between us and Wilensky can be found in comments in the source code.
 
 
 # Original description of the implementation (Uri Wilensky)
