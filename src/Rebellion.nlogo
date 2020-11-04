@@ -5,6 +5,8 @@ breed [ centroids centroid ]
 globals [
   k                   ; factor for determining arrest probability
   threshold           ; by how much must G > N to make someone rebel?
+  revolt              ; revolt counts number of ticks when there was at least 15 active agents
+  rebellion           ; rebillion counts number of ticks when there was at least 100 active agents
 ]
 
 ; social media task force
@@ -88,17 +90,12 @@ to go
   ask agents [ display-agent ]
   ask cops [ display-cop ]
 
-  ;ask agents [
-    ; social media dependent grievance: change grievance based on the mean grievance on social media
-  ;  if (grievance < sm-grievance)
-  ;    [ set perceived-hardship 1.05 * perceived-hardship ]
-  ;  if (grievance > sm-grievance)
-  ;    [ set perceived-hardship 0.95 * perceived-hardship ]
-  ;]
 
   ; calculate rebellion cluster centroids
   update-clusters
-
+  ; Update revolt and rebellion counters if conditions are met
+  if count agents with [active?] > 15 [set revolt revolt + 1]
+  if count agents with [active?] > 100 [set rebellion rebellion + 1]
   ; advance clock and update plots
   tick
 end
@@ -121,13 +118,13 @@ to move ; turtle procedure
     if cop-move = "sm-protest" [
       ifelse any? centroids and (sm-responder = true)[ ; if possible the sm-task-force-cops move towards the centroid
         let centro one-of centroids
+        ;For if statements to cover all possible combinations of two switches. if one of the swithces is active agent moves to centroid based on size of protest/grievance, if both switches are active
+        ;agent moves with multiplied probability of both dependencies and if non are active agent that uses social media always go to a protest
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
-          set heading towards one-of centroids
-          ;;ifelse not any? turtles-on patch-ahead 1 [fd 1 ]
-          ;;[
-          ;;  if not any? turtles-on patch-ahead 2 [ fd 2 ]
-          ;;]
-          fd 3
+          if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and dependence-on-grievance [set heading towards one-of centroids fd 3]
+          if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and not dependence-on-grievance [set heading towards one-of centroids fd 3]
         ]
       ]
       [ randommove ] ; else move randomly
@@ -143,9 +140,13 @@ to move ; turtle procedure
         ; the probability that an agent uses social media is set by agents-using-sm
         let centro one-of centroids
         if not(xcor = [xcor] of centro and ycor = [ycor] of centro) [
-          set heading towards one-of centroids
-          ;;if not any? turtles-on patch-ahead 1 [ fd 1 ]
-          fd 3
+
+          ;For if statements to cover all possible combinations of two switches. if one of the swithces is active agent moves to centroid based on size of protest/grievance, if both switches are active
+          ;agent moves with multiplied probability of both dependencies and if non are active agent that uses social media always go to a protest
+          if dependence-on-size and not dependence-on-grievance [ifelse random 100 <= size-of-protest * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and dependence-on-grievance [ifelse random 100 <= grievance * 100 [set heading towards one-of centroids fd 3] [randommove]]
+          if dependence-on-size and dependence-on-grievance [ifelse random 100 <= size-of-protest * grievance * 200 [set heading towards one-of centroids fd 3] [randommove]]
+          if not dependence-on-size and not dependence-on-grievance [set heading towards one-of centroids fd 3]
         ]
       ]
       [
@@ -173,12 +174,13 @@ to-report grievance
   report perceived-hardship * (1 - government-legitimacy)
 end
 
-to-report sm-grievance
-  let sm-grievances [grievance] of agents with [sm-user = true and jail-term = 0]
-  ifelse empty? sm-grievances
-    [ report 0.5 ]
-    [ report mean sm-grievances]
+;Calculate size of a protest based on the numver of active agents
+to-report size-of-protest
+  let num-active count agents with [active?]
+  let total-num count agents
+  report num-active / total-num
 end
+
 
 to-report estimated-arrest-probability
   let c count cops-on neighborhood
@@ -262,6 +264,7 @@ to update-clusters
     if any? agents [ ; create new centroid
       if not any? centroids[
         if (random 100 <= 10) [create-centroids 1 [
+          ;Create new centroid and random x-y location
           setxy random-pxcor random-pycor
           set size 5
           set color red - 1
@@ -282,7 +285,7 @@ to update-clusters
         set color red - 1
       ]
     ]
-
+    ;Calculate new position of a centroid based on the positions of active agents.
     ask centroids [
       let my-points agents with [ active? ]
       ifelse any? my-points [
@@ -385,7 +388,7 @@ max-jail-term
 max-jail-term
 0.0
 50.0
-15.0
+18.0
 1.0
 1
 turns
@@ -592,22 +595,11 @@ sm-response-rate
 sm-response-rate
 0
 100
-50.0
+85.0
 1
 1
 NIL
 HORIZONTAL
-
-MONITOR
-217
-324
-319
-369
-sm-grievance
-sm-grievance
-2
-1
-11
 
 SLIDER
 545
@@ -618,7 +610,7 @@ cop-response-rate
 cop-response-rate
 0
 100
-80.0
+50.0
 1
 1
 NIL
@@ -632,9 +624,86 @@ CHOOSER
 center-of-protest
 center-of-protest
 "predefined" "dynamic"
+1
+
+SWITCH
+390
+626
+567
+659
+dependence-on-size
+dependence-on-size
+1
+1
+-1000
+
+SWITCH
+389
+666
+602
+699
+dependence-on-grievance
+dependence-on-grievance
 0
+1
+-1000
+
+MONITOR
+10
+628
+296
+673
+Number of tick that agents were revolting
+revolt
+17
+1
+11
+
+TEXTBOX
+426
+433
+682
+451
+Our addition to the imlementation\n
+14
+0.0
+1
 
 @#$#@#$#@
+# General desription of final implementation.
+In our implementation we kept most of the original parts of implementation and moslty we added additionals parameters on top of them. Mainly we changed the movement of the agents
+by first changing the basis of the movememnt itself and adding several additional parameters that affect movement in one way or the other.
+# Our additions to the original implementation
+## Non-grid related movement
+In the orignal implementation agents moved only on x and y coordinates and only for th whole number of steps. In our implementation agents can move in any direction on 360 degree circle. 
+## Added sliders
+### Cop-response rate
+Slider responsible for the percentage of cop that go to a center of protest
+### sm-response rate
+Slider responsible for the percentage of citizens that go to a center of protest
+### agents-using-sm
+Slider responsible for the amount of agents  
+## Added choosers
+### cop-move
+This chooser lets us select type of cop movement. It can be rand(ignoring center of protest and just moving around) or sm-protest. During sm-protest part of police force move to the center of protest to potentially supress the revolt.
+### agent-move
+Three options availbale for this: rand,sm-protest,none. Rand and sm-protest act in the same way as cop-move chooser. None stops all of the movement.
+### center-of-protest
+There are two options for the center-of-protest. It can either be dynamic or predifined. When center-of-protest is dynamic it calculated as a mean position of all revolting agents on a map.
+ Predifined center of protest is created at random stop with 10% probability when there are no ongoing protest. Ongoing protest has 5% chance to stop.
+## Added buttons
+### dependence-on-size
+When this button is on agents 'desire' to go to the center of protest depends on the size of the protest. It is defined as a ratio of active agents to the total number of agents multiplied by 4. It can take value between 0 and 1 and acts as a probability of going to a protest.
+### dependence-on-grievance
+When this button is on agent moves to a protest depending on his grievance. In this case agent's grievance acts as a probability of going to a protest.
+## List of variables, functions and parameters that were added to the code or modified
+Parameters: global[revolt,rebellion],cops-own[sm-responder],agents-own[sm-user].
+Modified functions:to-go(added counts and cluster calculations),to-move(almost fully reimplemented to meet our needs).
+New functions: to-reset-centroids, to-update-clusters(both are responsible for showing and updating center of protest), randommove,
+
+
+
+# Original description of the inplementation
 ## WHAT IS IT?
 
 This project models the rebellion of a subjugated population against a central authority. It is is an adaptation of Joshua Epstein's model of civil violence (2002).
@@ -1075,6 +1144,58 @@ setup
 repeat 5 [ go ]
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="10" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="500"/>
+    <metric>revolt</metric>
+    <metric>rebellion</metric>
+    <metric>count agents with [active?]</metric>
+    <enumeratedValueSet variable="government-legitimacy">
+      <value value="0.82"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sm-response-rate">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cop-response-rate">
+      <value value="80"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="vision">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dependence-on-grievance">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-cop-density">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="agents-using-sm">
+      <value value="85"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dependence-on-size">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cop-move">
+      <value value="&quot;sm-protest&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-agent-density">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-jail-term">
+      <value value="18"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visualization">
+      <value value="&quot;2D&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="agent-move">
+      <value value="&quot;sm-protest&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="center-of-protest">
+      <value value="&quot;predefined&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
