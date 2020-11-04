@@ -670,32 +670,32 @@ Our addition to the imlementation\n
 1
 
 @#$#@#$#@
-# General desription of final implementation.
+# General description of final implementation.
 In our implementation we kept most of the original parts of implementation and moslty we added additionals parameters on top of them. Mainly we changed the movement of the agents
-by first changing the basis of the movememnt itself and adding several additional parameters that affect movement in one way or the other.
+by first changing the basis of the movement itself and adding several additional parameters that affect movement in one way or the other.
 # Our additions to the original implementation
 ## Non-grid related movement
-In the orignal implementation agents moved only on x and y coordinates and only for th whole number of steps. In our implementation agents can move in any direction on 360 degree circle. 
+In the orignal implementation agents moved only on x and y coordinates and only for the whole number of steps. In our implementation agents can move in any direction on a 360 degree circle. 
 ## Added sliders
 ### Cop-response rate
-Slider responsible for the percentage of cop that go to a center of protest
+Slider responsible for the percentage of cops that go to a center of protest.
 ### sm-response rate
-Slider responsible for the percentage of citizens that go to a center of protest
+Slider responsible for the percentage of citizens that go to a center of protest.
 ### agents-using-sm
-Slider responsible for the amount of agents  
+Slider responsible for the amount of agents using social media.
 ## Added choosers
 ### cop-move
-This chooser lets us select type of cop movement. It can be rand(ignoring center of protest and just moving around) or sm-protest. During sm-protest part of police force move to the center of protest to potentially supress the revolt.
+This chooser lets us select the type of cop movement. It can be rand (ignoring center of protest and just moving around) or sm-protest. During sm-protest part of the police force moves to the center of protest to supress the potential revolt.
 ### agent-move
-Three options availbale for this: rand,sm-protest,none. Rand and sm-protest act in the same way as cop-move chooser. None stops all of the movement.
+Three options available for this: rand, sm-protest, none. Rand and sm-protest act in the same way as cop-move chooser. None stops all of the movement.
 ### center-of-protest
-There are two options for the center-of-protest. It can either be dynamic or predifined. When center-of-protest is dynamic it calculated as a mean position of all revolting agents on a map.
- Predifined center of protest is created at random stop with 10% probability when there are no ongoing protest. Ongoing protest has 5% chance to stop.
+There are two options for the center-of-protest. It can either be dynamic or predefined. When center-of-protest is dynamic it calculated as a mean position of all revolting agents on a map.
+Predefined center of protest is created at random stop with 10% probability when there are no ongoing protest. An ongoing protest has 5% chance to stop.
 ## Added buttons
 ### dependence-on-size
 When this button is on agents 'desire' to go to the center of protest depends on the size of the protest. It is defined as a ratio of active agents to the total number of agents multiplied by 4. It can take value between 0 and 1 and acts as a probability of going to a protest.
 ### dependence-on-grievance
-When this button is on agent moves to a protest depending on his grievance. In this case agent's grievance acts as a probability of going to a protest.
+When this button is on an agent moves to a protest depending on his grievance. In this case agent's grievance acts as a probability of going to a protest.
 ## List of variables, functions and parameters that were added to the code or modified
 Parameters: global[revolt,rebellion],cops-own[sm-responder],agents-own[sm-user].
 Modified functions:to-go(added counts and cluster calculations),to-move(almost fully reimplemented to meet our needs).
@@ -703,7 +703,7 @@ New functions: to-reset-centroids, to-update-clusters(both are responsible for s
 
 
 
-# Original description of the inplementation
+# Original description of the implementation (Uri Wilensky)
 ## WHAT IS IT?
 
 This project models the rebellion of a subjugated population against a central authority. It is is an adaptation of Joshua Epstein's model of civil violence (2002).
